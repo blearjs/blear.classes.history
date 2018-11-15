@@ -96,7 +96,6 @@ var History = Events.extend({
     forward: function () {
         var the = this;
 
-        the.emit('forward');
         switch (the[_current]) {
             case -1:
                 return null;
@@ -106,6 +105,7 @@ var History = Events.extend({
 
             default:
                 the[_current]++;
+                the.emit('forward');
                 return the.active();
         }
     },
@@ -117,7 +117,6 @@ var History = Events.extend({
     back: function () {
         var the = this;
 
-        the.emit('back');
         switch (the[_current]) {
             case -1:
                 return null;
@@ -127,6 +126,7 @@ var History = Events.extend({
 
             default:
                 the[_current]--;
+                the.emit('back');
                 return the.active();
         }
     },
@@ -138,8 +138,12 @@ var History = Events.extend({
      */
     go: function (index) {
         var the = this;
+
+        if (the[_current] !== index) {
+            the.emit('go', index);
+        }
+
         the[_current] = index;
-        the.emit('go', index);
         return the.active();
     },
 
