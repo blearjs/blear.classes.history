@@ -1,7 +1,7 @@
 /**
  * blear.classes.history
  * @author ydr.me
- * @create 2016年06月04日14:09:36
+ * @create 2018年11月15日19:07:02
  */
 
 
@@ -27,10 +27,10 @@ var History = Events.extend({
 
     /**
      * 新增历史
-     * @param item
+     * @param record
      * @returns {History}
      */
-    push: function (item) {
+    push: function (record) {
         var the = this;
 
         // 不在记录末尾
@@ -48,28 +48,30 @@ var History = Events.extend({
             the[_current]--;
         }
 
-        the[_histories].push(item);
+        the[_histories].push(record);
         the.length++;
         the[_current]++;
+        the.emit('push', record);
         return the;
     },
 
     /**
      * 替换历史
-     * @param item
+     * @param record
      * @returns {History}
      */
-    replace: function (item) {
+    replace: function (record) {
         var the = this;
 
         if (the[_current] === -1) {
-            the[_histories].push(item);
+            the[_histories].push(record);
             the.length++;
             the[_current]++;
         } else {
-            the[_histories][the[_current]] = item;
+            the[_histories][the[_current]] = record;
         }
 
+        the.emit('replace', record);
         return the;
     },
 
@@ -94,6 +96,7 @@ var History = Events.extend({
     forward: function () {
         var the = this;
 
+        the.emit('forward');
         switch (the[_current]) {
             case -1:
                 return null;
@@ -114,6 +117,7 @@ var History = Events.extend({
     back: function () {
         var the = this;
 
+        the.emit('back');
         switch (the[_current]) {
             case -1:
                 return null;
@@ -135,7 +139,18 @@ var History = Events.extend({
     go: function (index) {
         var the = this;
         the[_current] = index;
+        the.emit('go', index);
         return the.active();
+    },
+
+    /**
+     * 销毁实例
+     */
+    destroy: function () {
+        var the = this;
+
+        the[_histories] = null;
+        History.invoke('destroy', the);
     }
 });
 var proto = History.prototype;
